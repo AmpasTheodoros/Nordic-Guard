@@ -106,22 +106,21 @@ def dashboard():
                 with st.spinner("Collecting and processing Swedish data..."):
                     try:
                         company_data = swedish_company_service.fetch_swedish_company_info(company_name)
-                        population_data = swedish_population_service.fetch_swedish_population_data()
-                        crime_data = swedish_crime_service.fetch_swedish_crime_stats()
                         
-                        processed_swedish_data = swedish_processor.process_swedish_data(company_data, population_data, crime_data)
-                        
-                        st.success("Swedish data processing complete!")
-                        
-                        st.subheader("Swedish Company and General Data")
-                        st.dataframe(processed_swedish_data)
-                        
-                        st.subheader("Additional Insights")
-                        st.write(f"Company Status: {company_data.get('status', 'N/A')}")
-                        st.write(f"Company Revenue: {company_data.get('revenue', 'N/A')}")
-                        st.write(f"Company Employees: {company_data.get('employees', 'N/A')}")
-                        st.write(f"Total Population: {population_data.get('total_population', 'N/A')}")
-                        st.write(f"Total Reported Crimes: {crime_data.get('total_reported_crimes', 'N/A')} ({crime_data.get('year', 'N/A')})")
+                        if "error" in company_data:
+                            st.error(company_data["error"])
+                        else:
+                            st.success("Swedish company data retrieved successfully!")
+                            st.write(f"Company Name: {company_data['company_name']}")
+                            st.write(f"Org.nummer: {company_data['org_nummer']}")
+                            
+                            # Fetch additional data if needed
+                            population_data = swedish_population_service.fetch_swedish_population_data()
+                            crime_data = swedish_crime_service.fetch_swedish_crime_stats()
+                            
+                            st.subheader("Additional Swedish Data")
+                            st.write(f"Total Population: {population_data.get('total_population', 'N/A')}")
+                            st.write(f"Total Reported Crimes: {crime_data.get('total_reported_crimes', 'N/A')} ({crime_data.get('year', 'N/A')})")
                         
                     except Exception as e:
                         st.error(f"An error occurred during Swedish data processing: {str(e)}")
